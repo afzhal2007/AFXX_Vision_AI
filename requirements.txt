@@ -1,0 +1,6 @@
+flask
+ultralytics
+opencv-python
+cvzone
+numpy>=1.26.4
+pillow

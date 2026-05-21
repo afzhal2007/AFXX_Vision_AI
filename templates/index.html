@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>AFXX Vision AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="author" content="Mohamed Afzhal Wahab">
+    <meta name="description" content="AFXX Vision AI - Real-time YOLOv8 detection">
+</head>
+<body>
+    <div id="cursor-trail"></div>
+    <header class="navbar">
+        <div class="nav-inner">
+            <div class="brand">
+                <div class="logo">🤖</div>
+                <div class="brand-text">
+                    <div class="title">AFXX Vision AI</div>
+                    <div class="subtitle">Designed &amp; Developed by Mohamed Afzhal Wahab</div>
+                </div>
+            </div>
+            <nav class="nav-actions">
+                <a class="nav-link active">Home</a>
+                <a class="nav-link">Camera</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>AFXX Vision AI</h1>
+            <p class="lead">Premium real-time object detection with YOLOv8s — fast, accurate, and stylish.</p>
+        </section>
+
+        <section class="camera-card">
+            <div class="camera-header">
+                <h2>Live Camera</h2>
+                <div class="controls">
+                    <button id="startBtn" class="btn btn-primary">▶ Start Camera</button>
+                    <button id="stopBtn" class="btn btn-danger">⏹ Stop Camera</button>
+                    <button id="snapBtn" class="btn btn-success">📸 Screenshot</button>
+                </div>
+            </div>
+
+            <div class="camera-body">
+                <div class="camera-frame">
+                    <img id="cameraStream" alt="Live camera feed" crossorigin="anonymous">
+                    <div class="camera-overlay" id="cameraOverlay">
+                        <div class="loader" id="cameraLoader"><span></span><p>Starting camera...</p></div>
+                        <div class="error" id="cameraError" role="alert" aria-live="polite" style="display:none"></div>
+                    </div>
+                </div>
+                <div class="camera-stats">
+                    <div class="stat">
+                        <div class="label">FPS</div>
+                        <div id="fps" class="value">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Objects</div>
+                        <div id="objectCount" class="value">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-note">Stream: MJPEG • Resolution: 1280×720 • Mirror mode enabled</div>
+        </section>
+
+        <footer class="site-footer">
+            <div>AFXX Vision AI • Designed &amp; Developed by Mohamed Afzhal Wahab</div>
+        </footer>
+    </main>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000';
+    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+                    <div class="confidence-display" id="avgConfidence">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="camera" class="page">
+        <div class="page-container">
+            <div class="page-header">
+                <h1 class="page-title">Live Camera Detection</h1>
+                <p class="page-subtitle">Real-time object detection from your webcam</p>
+            </div>
+            <div class="camera-container">
+                <div class="camera-wrapper">
+                    <img id="cameraStream" class="camera-stream" alt="Live camera feed">
+                    <div class="camera-loading" id="cameraLoading">
+                        <div class="spinner"></div>
+                        <p>Starting camera...</p>
+                    </div>
+                    <div class="camera-error" id="cameraError" style="display: none;"></div>
+                </div>
+                <div class="camera-stats">
+                    <div class="stat">
+                        <span class="stat-name">FPS</span>
+                        <span class="stat-val" id="fps">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Objects</span>
+                        <span class="stat-val" id="objectCount">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-buttons">
+                <button class="btn btn-primary" onclick="startCamera()">
+                    <span>▶ Start Camera</span>
+                </button>
+                <button class="btn btn-danger" onclick="stopCamera()">
+                    <span>⏹ Stop Camera</span>
+                </button>
+                <button class="btn btn-success" onclick="captureScreenshot()">
+                    <span>📸 Capture Screenshot</span>
+                </button>
+            </div>
+            <div class="filter-section">
+                <h3>Detection Filter</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all" onclick="setDetectionFilter('all', event)">All Objects</button>
+                    <button class="filter-btn" data-filter="person" onclick="setDetectionFilter('person', event)">👤 Person</button>
+                    <button class="filter-btn" data-filter="cell phone" onclick="setDetectionFilter('cell phone', event)">📱 Mobile</button>
+                    <button class="filter-btn" data-filter="bottle" onclick="setDetectionFilter('bottle', event)">🍾 Bottle</button>
+                </div>
+            </div>
+            <div class="detections-panel">
+                <h3>Current Detections</h3>
+                <div class="detections-list" id="realtimeDetectionsList">
+                    <p class="empty-state">No detections</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="upload" class="page">
+        <div class="page-container">
+            <div class="page-header">
+                <h1 class="page-title">Upload Detection</h1>
+                <p class="page-subtitle">Upload images or videos for object detection</p>
+            </div>
+            <div class="upload-section">
+                <div class="upload-card">
+                    <h3>📷 Image Detection</h3>
+                    <div class="upload-area" id="imageUploadArea">
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                        <div class="upload-icon">🖼️</div>
+                        <p>Click or drag image here</p>
+                        <span class="upload-hint">Supported: PNG, JPG, JPEG, GIF</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="document.getElementById('imageInput').click()">
+                        Choose Image
+                    </button>
+                </div>
+                <div class="upload-card">
+                    <h3>🎬 Video Detection</h3>
+                    <div class="upload-area" id="videoUploadArea">
+                        <input type="file" id="videoInput" accept="video/*" hidden>
+                        <div class="upload-icon">🎥</div>
+                        <p>Click or drag video here</p>
+                        <span class="upload-hint">Supported: MP4, AVI, MOV</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="document.getElementById('videoInput').click()">
+                        Choose Video
+                    </button>
+                </div>
+            </div>
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h3>Detection Results</h3>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h4>Detections</h4>
+                        <p class="result-value" id="resultsDetections">0</p>
+                    </div>
+                    <div class="result-card">
+                        <h4>Processing Time</h4>
+                        <p class="result-value" id="resultsTime">0s</p>
+                    </div>
+                </div>
+                <div id="imageResultsDiv" style="display: none;">
+                    <div class="image-comparison">
+                        <div class="comparison-item">
+                            <h4>Original</h4>
+                            <img id="originalImage" src="" alt="Original">
+                        </div>
+                        <div class="comparison-item">
+                            <h4>Detected</h4>
+                            <img id="detectedImage" src="" alt="Detected">
+                        </div>
+                    </div>
+                </div>
+                <div id="videoResultsDiv" style="display: none;">
+                    <h4>Processed Video</h4>
+                    <video id="processedVideo" controls></video>
+                </div>
+                <div class="detections-list-full" id="detectionsFull"></div>
+            </div>
+            <div class="loading-spinner" id="uploadLoading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processing file...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="history" class="page">
+        <div class="page-container">
+            <div class="page-header">
+                <h1 class="page-title">Detection History</h1>
+                <p class="page-subtitle">View all detection logs and screenshots</p>
+            </div>
+            <div class="history-tabs">
+                <button class="tab-btn active" onclick="switchHistoryTab('logs', event)">📋 Logs</button>
+                <button class="tab-btn" onclick="switchHistoryTab('screenshots', event)">📸 Screenshots</button>
+            </div>
+            <div id="logsTab" class="tab-content active">
+                <div class="logs-container" id="logsContainer">
+                    <p class="empty-state">No detection logs yet</p>
+                </div>
+            </div>
+            <div id="screenshotsTab" class="tab-content">
+                <div class="screenshots-grid" id="screenshotsGrid">
+                    <p class="empty-state">No screenshots yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="about" class="page">
+        <div class="page-container">
+            <div class="page-header">
+                <h1 class="page-title">About AFXX Vision AI</h1>
+                <p class="page-subtitle">Cutting-edge AI object detection technology</p>
+            </div>
+            <div class="about-content">
+                <div class="about-card">
+                    <h3>🤖 About the Project</h3>
+                    <p>AFXX Vision AI is a premium real-time object detection platform powered by YOLOv8, delivering state-of-the-art accuracy and performance. Built with cutting-edge technology, it processes visual data in real-time to identify and track objects with precision.</p>
+                </div>
+                <div class="about-card">
+                    <h3>⚙️ Technology Stack</h3>
+                    <ul>
+                        <li><strong>Backend:</strong> Python Flask</li>
+                        <li><strong>AI Model:</strong> YOLOv8 (Ultralytics)</li>
+                        <li><strong>Computer Vision:</strong> OpenCV</li>
+                        <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript</li>
+                        <li><strong>Streaming:</strong> MJPEG / video_feed</li>
+                    </ul>
+                </div>
+                <div class="about-card">
+                    <h3>✨ Features</h3>
+                    <ul>
+                        <li>Live webcam detection with real-time bounding boxes</li>
+                        <li>Image and video upload detection</li>
+                        <li>Object tracking with unique IDs</li>
+                        <li>Automated screenshot capture system</li>
+                        <li>Security alerts for dangerous objects</li>
+                        <li>Comprehensive detection history and analytics</li>
+                        <li>Premium dark futuristic UI with animations</li>
+                        <li>Mobile responsive design</li>
+                    </ul>
+                </div>
+                <div class="about-card">
+                    <h3>🎯 Supported Classes</h3>
+                    <div class="classes-grid">
+                        <span class="class-badge">Person</span>
+                        <span class="class-badge">Car</span>
+                        <span class="class-badge">Bicycle</span>
+                        <span class="class-badge">Motorbike</span>
+                        <span class="class-badge">Bottle</span>
+                        <span class="class-badge">Cell Phone</span>
+                        <span class="class-badge">Knife</span>
+                        <span class="class-badge">Laptop</span>
+                        <span class="class-badge">Dog</span>
+                        <span class="class-badge">Cat</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>AFXX Vision AI</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
