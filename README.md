@@ -1,8 +1,10 @@
 ## Screenshots
 
-![SS4](screenshots/ss4.png)
-![SS5](screenshots/ss5.png)
-![SS6](screenshots/ss6.png)
+<img src="screenshots/ss4.png" width="300">
+
+<img src="screenshots/ss5.png" width="300">
+
+<img src="screenshots/ss6.png" width="300">
 
 
 
