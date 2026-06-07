@@ -1,10 +1,10 @@
 ## Screenshots
 
-<img src="screenshots/ss4.png" width="300">
+<img src="screenshots/ss4.png" width="800">
 
-<img src="screenshots/ss5.png" width="300">
+<img src="screenshots/ss5.png" width="800">
 
-<img src="screenshots/ss6.png" width="300">
+<img src="screenshots/ss6.png" width="800">
 
 
 
