@@ -1,3 +1,14 @@
+## Screenshots
+
+![SS4](screenshots/ss4.png)
+
+![SS5](screenshots/ss5.png)
+
+![SS6](screenshots/ss6.png)
+
+
+
+
 # AFXX Vision AI - Premium Object Detection Platform
 
 ![AFXX Vision AI](https://img.shields.io/badge/AFXX-Vision%20AI-00d4ff?style=for-the-badge)
